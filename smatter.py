@@ -38,8 +38,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             mc.matter.smatter.insert_one(ret)
         elif val.get('type') == 'msg':
             for i in self.CONNECTIONS:
-                if i != self:
-                    i.write_message('{"type":"msg", "values":" '+ val.get('value') + '"}')
+                i.write_message('{"type":"msg", "values":" '+ val.get('value') + '"}')
         elif val.get('type') == 'typing':
             for i in self.CONNECTIONS:
                 if i != self:
