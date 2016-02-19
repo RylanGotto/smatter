@@ -1,0 +1,122 @@
+{%  extends "template.html" %}
+
+
+{% block content %}
+<style>
+	
+
+h1 {
+  font: 400 130px/0.8 'Great Vibes', Helvetica, sans-serif;
+  color: #fff;
+  text-shadow: 4px 4px 3px rgba(0,0,0,0.1); 
+  transform: rotate(-8deg);
+  margin-top:6rem;
+}
+body { background: #252626; }
+
+#center-below, #center-above {
+  margin-top: 8rem;
+  -webkit-transform: translate(0,0);
+  text-align: center;
+}
+
+#focuses .prompt input {
+  width: 17em;
+  border-bottom-width: 2px;
+  font-weight: bold;
+  line-height: 1.2em;
+}
+
+#introduction input, #focuses .prompt input {
+  width: 50%;
+  margin: 0 auto;
+  display: block;
+  background: 0;
+  border: 0;
+  border-bottom: 2px solid #fff;
+  color: #fff;
+  outline: none;
+  text-align: center;
+}
+
+#introduction input, #focuses .prompt1 input {
+  width: 50%;
+  margin: 0 auto;
+  display: block;
+  background: 0;
+  border: 0;
+  color: #fff;
+  outline: none;
+  text-align: center;
+  width: 17em;
+  border-bottom-width: 2px;
+  font-size:3rem;
+  font-weight: 200;
+}
+
+.prompt h3 {
+  color: white;
+}
+
+</style>
+<div class="container">
+	<div class="row text-center">
+		<h1>Whats the smatter?</h1>
+	</div>
+	<div class="row" id="center-below">
+	  <div id="focuses" style="opacity: 1;">
+	    <div class="prompt" style="opacity: 1; display: block;">
+	            <input type="text">
+	        </div>
+	    </div>
+	 </div>
+
+
+   <div class="row chatbox" id="center-below">
+      <div id="chatoutput" style="background:white; height:200px; overflow: auto;"><p id="is_typing"></p></div>
+      <input type="text">   
+   </div>
+
+
+</div>
+
+<script>
+function test(){
+    $('#is_typing').html('');
+    setTimeout(test, 1000);
+}
+
+
+	var ws = new WebSocket("ws://192.168.33.21/websocket");
+ws.onopen = function() {
+  test();
+   console.log("Connection open");
+};
+ws.onmessage = function (evt) {
+  var incomming = JSON.parse(evt.data); 
+  if (incomming.type === 'typing'){
+    $('#is_typing').html(incomming.values);
+  } else if (incomming.type === 'msg'){
+    $('#chatoutput').append('<p>' + incomming.values + '</p>');
+  }
+};
+
+$(document).ready(function(){
+  $('.prompt input').keypress(function(e) {
+    if(e.which == 13) {
+        ws.send('{"type":"sub", "value":"' + $(this).val() + '"}');
+    }
+  });
+  $('.chatbox input').keypress(function(e) {
+    if(e.which == 13) {
+        ws.send('{"type":"msg", "value":"' + $(this).val() + '"}');
+    }
+  });
+  $('.chatbox input').keypress(function(){
+    ws.send('{"type":"typing"}')
+  });
+
+});
+</script>
+
+{% end %}
